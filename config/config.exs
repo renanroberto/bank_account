@@ -18,6 +18,11 @@ config :bank_account, BankAccountWeb.Endpoint,
   pubsub_server: BankAccount.PubSub,
   live_view: [signing_salt: "Qz4goLVI"]
 
+# Configures Guardian
+config :bank_account, BankAccount.Accounts.Guardian,
+  issuer: "bank_account",
+  secret_key: "W+JZVZBh94gbA1DUULG8f/AscBJILCGIfwHj+sqF1lfyfPRQgcGMFiqypGSfVTR6"
+
 # Configures Elixir's Logger
 config :logger, :console,
   format: "$time $metadata[$level] $message\n",

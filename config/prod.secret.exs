@@ -30,6 +30,17 @@ config :bank_account, BankAccountWeb.Endpoint,
   ],
   secret_key_base: secret_key_base
 
+secret_key_guardian =
+  System.get_env("SECRET_KEY_GUARDIAN") ||
+    raise """
+    environment variable SECRET_KEY_GUARDIAN is missing.
+    You can generate one by calling: mix guardian.gen.secret
+    """
+
+config :bank_account, BankAccount.Accounts.Guardian,
+  issuer: "bank_account",
+  secret_key: secret_key_guardian
+
 # ## Using releases (Elixir v1.9+)
 #
 # If you are doing OTP releases, you need to instruct Phoenix
