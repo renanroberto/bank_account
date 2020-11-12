@@ -3,9 +3,12 @@ defmodule BankAccount.Repo.Migrations.CreateClients do
 
   def change do
     create table(:clients) do
-      add :name, :string
-      add :cpf, :string, null: false
-      add :birth_date, :date
+      add :name, :binary
+      add :name_hash, :binary
+      add :cpf, :binary, null: false
+      add :cpf_hash, :binary
+      add :birth_date, :binary
+      add :birth_date_hash, :binary
       add :gender, :string
       add :city, :string
       add :state, :string

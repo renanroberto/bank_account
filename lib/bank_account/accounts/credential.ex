@@ -5,7 +5,8 @@ defmodule BankAccount.Accounts.Credential do
   import Ecto.Changeset
 
   schema "credentials" do
-    field :email, :string
+    field :email, BankAccount.Encrypted.Binary
+    field :email_hash, Cloak.Ecto.SHA256
     field :password, :string
 
     belongs_to :client, BankAccount.Accounts.Client
@@ -20,6 +21,7 @@ defmodule BankAccount.Accounts.Credential do
     |> validate_required([:email, :password])
     |> unique_constraint(:email)
     |> put_password_hash()
+    |> put_hashed_fields()
   end
 
   defp put_password_hash(
@@ -32,4 +34,9 @@ defmodule BankAccount.Accounts.Credential do
   end
 
   defp put_password_hash(changeset), do: changeset
+
+  defp put_hashed_fields(changeset) do
+    changeset
+    |> put_change(:email_hash, get_field(changeset, :email))
+  end
 end

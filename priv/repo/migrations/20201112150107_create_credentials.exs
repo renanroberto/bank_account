@@ -3,7 +3,8 @@ defmodule BankAccount.Repo.Migrations.CreateCredentials do
 
   def change do
     create table(:credentials) do
-      add :email, :string, null: false
+      add :email, :binary, null: false
+      add :email_hash, :binary
       add :password, :string, null: false
       add :client_id, references(:clients, on_delete: :delete_all)
 

@@ -58,12 +58,36 @@ defmodule BankAccount.AccountsTest do
 
     test "list_clients/0 returns all clients" do
       client = client_fixture()
-      assert Accounts.list_clients() == [client]
+      assert [repo_client] = Accounts.list_clients()
+
+      assert client.birth_date == repo_client.birth_date
+      assert client.city == repo_client.city
+      assert client.country == repo_client.country
+      assert client.cpf == repo_client.cpf
+      assert client.gender == repo_client.gender
+      assert client.name == repo_client.name
+      assert client.referral_code == repo_client.referral_code
+      assert client.state == repo_client.state
+      assert client.credential.email == repo_client.credential.email
+      assert client.credential.password == repo_client.credential.password
+      assert client.status_complete == repo_client.status_complete
     end
 
     test "get_client!/1 returns the client with given id" do
       client = client_fixture()
-      assert Accounts.get_client!(client.id) == client
+      repo_client = Accounts.get_client!(client.id)
+
+      assert client.birth_date == repo_client.birth_date
+      assert client.city == repo_client.city
+      assert client.country == repo_client.country
+      assert client.cpf == repo_client.cpf
+      assert client.gender == repo_client.gender
+      assert client.name == repo_client.name
+      assert client.referral_code == repo_client.referral_code
+      assert client.state == repo_client.state
+      assert client.credential.email == repo_client.credential.email
+      assert client.credential.password == repo_client.credential.password
+      assert client.status_complete == repo_client.status_complete
     end
 
     test "create_client/1 with valid data creates a client" do
@@ -104,7 +128,20 @@ defmodule BankAccount.AccountsTest do
     test "update_client/2 with invalid data returns error changeset" do
       client = client_fixture()
       assert {:error, %Ecto.Changeset{}} = Accounts.update_client(client, @invalid_attrs)
-      assert client == Accounts.get_client!(client.id)
+
+      repo_client = Accounts.get_client!(client.id)
+
+      assert client.birth_date == repo_client.birth_date
+      assert client.city == repo_client.city
+      assert client.country == repo_client.country
+      assert client.cpf == repo_client.cpf
+      assert client.gender == repo_client.gender
+      assert client.name == repo_client.name
+      assert client.referral_code == repo_client.referral_code
+      assert client.state == repo_client.state
+      assert client.credential.email == repo_client.credential.email
+      assert client.credential.password == repo_client.credential.password
+      assert client.status_complete == repo_client.status_complete
     end
 
     test "delete_client/1 deletes the client" do
@@ -137,12 +174,18 @@ defmodule BankAccount.AccountsTest do
 
     test "list_credentials/0 returns all credentials" do
       credential = credential_fixture()
-      assert Accounts.list_credentials() == [credential]
+      assert [repo_credential] = Accounts.list_credentials()
+
+      assert credential.email == repo_credential.email
+      assert credential.password == repo_credential.password
     end
 
     test "get_credential!/1 returns the credential with given id" do
       credential = credential_fixture()
-      assert Accounts.get_credential!(credential.id) == credential
+      repo_credential = Accounts.get_credential!(credential.id)
+
+      assert credential.email == repo_credential.email
+      assert credential.password == repo_credential.password
     end
 
     test "create_credential/1 with valid data creates a credential" do
@@ -172,7 +215,10 @@ defmodule BankAccount.AccountsTest do
     test "update_credential/2 with invalid data returns error changeset" do
       credential = credential_fixture()
       assert {:error, %Ecto.Changeset{}} = Accounts.update_credential(credential, @invalid_attrs)
-      assert credential == Accounts.get_credential!(credential.id)
+      repo_credential = Accounts.get_credential!(credential.id)
+
+      assert credential.email == repo_credential.email
+      assert credential.password == repo_credential.password
     end
 
     test "delete_credential/1 deletes the credential" do
