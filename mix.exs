@@ -36,6 +36,7 @@ defmodule BankAccount.MixProject do
       {:credo, "~> 1.5", only: [:dev, :test], runtime: false},
       {:guardian, "~> 2.1.1"},
       {:argon2_elixir, "~> 2.3.0"},
+      {:cloak_ecto, "~> 1.1.1"},
       {:phoenix, "~> 1.5.6"},
       {:phoenix_ecto, "~> 4.1"},
       {:ecto_sql, "~> 3.4"},
