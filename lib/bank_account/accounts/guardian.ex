@@ -1,4 +1,6 @@
 defmodule BankAccount.Accounts.Guardian do
+  @moduledoc "Encapsulate the configuration and behaviour of Guardian"
+
   use Guardian, otp_app: :bank_account
 
   alias BankAccount.Accounts

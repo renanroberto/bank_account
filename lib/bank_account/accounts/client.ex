@@ -1,4 +1,6 @@
 defmodule BankAccount.Accounts.Client do
+  @moduledoc "Provide the client schema"
+
   use Ecto.Schema
   import Ecto.Changeset
 

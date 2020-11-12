@@ -1,4 +1,6 @@
 defmodule BankAccount.Accounts.Credential do
+  @moduledoc "Provides the credential schema"
+
   use Ecto.Schema
   import Ecto.Changeset
 

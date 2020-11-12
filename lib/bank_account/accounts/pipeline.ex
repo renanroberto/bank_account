@@ -1,4 +1,6 @@
 defmodule BankAccount.Accounts.Pipeline do
+  @moduledoc "Provides authentication related pipelines"
+
   use Guardian.Plug.Pipeline,
     otp_app: :bank_account,
     error_handler: BankAccountWeb.ErrorHandlerController,

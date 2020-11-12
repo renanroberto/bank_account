@@ -33,6 +33,7 @@ defmodule BankAccount.MixProject do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
+      {:credo, "~> 1.5", only: [:dev, :test], runtime: false},
       {:guardian, "~> 2.1.1"},
       {:argon2_elixir, "~> 2.3.0"},
       {:phoenix, "~> 1.5.6"},
