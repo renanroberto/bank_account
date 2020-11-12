@@ -5,12 +5,12 @@ defmodule BankAccount.Repo.Migrations.CreateCredentials do
     create table(:credentials) do
       add :email, :string, null: false
       add :password, :string, null: false
-      add :client, references(:clients, on_delete: :delete_all)
+      add :client_id, references(:clients, on_delete: :delete_all)
 
       timestamps()
     end
 
     create unique_index(:credentials, [:email])
-    create index(:credentials, [:client])
+    create index(:credentials, [:client_id])
   end
 end

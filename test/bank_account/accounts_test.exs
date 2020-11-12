@@ -6,9 +6,42 @@ defmodule BankAccount.AccountsTest do
   describe "clients" do
     alias BankAccount.Accounts.Client
 
-    @valid_attrs %{active: true, birth_date: ~D[2010-04-17], city: "some city", country: "some country", cpf: "some cpf", gender: "some gender", name: "some name", referral_code: "some referral_code", state: "some state", status_complete: true}
-    @update_attrs %{active: false, birth_date: ~D[2011-05-18], city: "some updated city", country: "some updated country", cpf: "some updated cpf", gender: "some updated gender", name: "some updated name", referral_code: "some updated referral_code", state: "some updated state", status_complete: false}
-    @invalid_attrs %{active: nil, birth_date: nil, city: nil, country: nil, cpf: nil, gender: nil, name: nil, referral_code: nil, state: nil, status_complete: nil}
+    @valid_attrs %{
+      active: true,
+      birth_date: ~D[2010-04-17],
+      city: "some city",
+      country: "some country",
+      cpf: "some cpf",
+      gender: "some gender",
+      name: "some name",
+      referral_code: "some referral_code",
+      state: "some state",
+      status_complete: true
+    }
+    @update_attrs %{
+      active: false,
+      birth_date: ~D[2011-05-18],
+      city: "some updated city",
+      country: "some updated country",
+      cpf: "some updated cpf",
+      gender: "some updated gender",
+      name: "some updated name",
+      referral_code: "some updated referral_code",
+      state: "some updated state",
+      status_complete: false
+    }
+    @invalid_attrs %{
+      active: nil,
+      birth_date: nil,
+      city: nil,
+      country: nil,
+      cpf: nil,
+      gender: nil,
+      name: nil,
+      referral_code: nil,
+      state: nil,
+      status_complete: nil
+    }
 
     def client_fixture(attrs \\ %{}) do
       {:ok, client} =
@@ -109,7 +142,9 @@ defmodule BankAccount.AccountsTest do
     test "create_credential/1 with valid data creates a credential" do
       assert {:ok, %Credential{} = credential} = Accounts.create_credential(@valid_attrs)
       assert credential.email == "some email"
-      assert credential.password == "some password"
+
+      assert {:ok, credential} ==
+               Argon2.check_pass(credential, "some password", hash_key: :password)
     end
 
     test "create_credential/1 with invalid data returns error changeset" do
@@ -118,9 +153,14 @@ defmodule BankAccount.AccountsTest do
 
     test "update_credential/2 with valid data updates the credential" do
       credential = credential_fixture()
-      assert {:ok, %Credential{} = credential} = Accounts.update_credential(credential, @update_attrs)
+
+      assert {:ok, %Credential{} = credential} =
+               Accounts.update_credential(credential, @update_attrs)
+
       assert credential.email == "some updated email"
-      assert credential.password == "some updated password"
+
+      assert {:ok, credential} ==
+               Argon2.check_pass(credential, "some updated password", hash_key: :password)
     end
 
     test "update_credential/2 with invalid data returns error changeset" do

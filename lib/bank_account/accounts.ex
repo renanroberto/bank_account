@@ -151,6 +151,23 @@ defmodule BankAccount.Accounts do
     |> Repo.insert()
   end
 
+  def authenticate_credential(email, plain_password) do
+    query = from c in Credential, where: c.email == ^email
+
+    case Repo.one(query) do
+      nil ->
+        Argon2.no_user_verify()
+        {:error, :invalid_credentials}
+
+      credential ->
+        if Argon2.verify_pass(plain_password, credential.password) do
+          {:ok, credential}
+        else
+          {:error, :invalid_credentials}
+        end
+    end
+  end
+
   @doc """
   Updates a credential.
 
