@@ -7,6 +7,7 @@ defmodule BankAccount.Accounts do
   alias BankAccount.Repo
 
   alias BankAccount.Accounts.Client
+  alias BankAccount.Accounts.Credential
 
   @doc """
   Returns the list of clients.
@@ -18,7 +19,9 @@ defmodule BankAccount.Accounts do
 
   """
   def list_clients do
-    Repo.all(Client)
+    Client
+    |> Repo.all()
+    |> Repo.preload(:credential)
   end
 
   @doc """
@@ -35,7 +38,11 @@ defmodule BankAccount.Accounts do
       ** (Ecto.NoResultsError)
 
   """
-  def get_client!(id), do: Repo.get!(Client, id)
+  def get_client!(id) do
+    Client
+    |> Repo.get!(id)
+    |> Repo.preload(:credential)
+  end
 
   @doc """
   Creates a client.
@@ -50,9 +57,15 @@ defmodule BankAccount.Accounts do
 
   """
   def create_client(attrs \\ %{}) do
-    %Client{}
-    |> Client.changeset(attrs)
-    |> Repo.insert()
+    with {:ok, client} <-
+           %Client{}
+           |> Client.changeset(attrs)
+           |> Ecto.Changeset.cast_assoc(
+             :credential,
+             with: &Credential.changeset/2
+           )
+           |> Repo.insert(),
+         do: {:ok, Repo.preload(client, :credential)}
   end
 
   @doc """
@@ -70,6 +83,7 @@ defmodule BankAccount.Accounts do
   def update_client(%Client{} = client, attrs) do
     client
     |> Client.changeset(attrs)
+    |> Ecto.Changeset.cast_assoc(:credential, with: &Credential.changeset/2)
     |> Repo.update()
   end
 
@@ -101,8 +115,6 @@ defmodule BankAccount.Accounts do
   def change_client(%Client{} = client, attrs \\ %{}) do
     Client.changeset(client, attrs)
   end
-
-  alias BankAccount.Accounts.Credential
 
   @doc """
   Returns the list of credentials.

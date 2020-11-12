@@ -16,7 +16,11 @@ defmodule BankAccount.AccountsTest do
       name: "some name",
       referral_code: "some referral_code",
       state: "some state",
-      status_complete: true
+      status_complete: true,
+      credential: %{
+        email: "email@example.com",
+        password: "secret"
+      }
     }
     @update_attrs %{
       active: false,
@@ -73,6 +77,8 @@ defmodule BankAccount.AccountsTest do
       assert client.name == "some name"
       assert client.referral_code == "some referral_code"
       assert client.state == "some state"
+      assert client.credential.email == "email@example.com"
+      assert Argon2.check_pass(client.credential, "secret", hash_key: :password)
       assert client.status_complete == true
     end
 
