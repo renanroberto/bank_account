@@ -14,10 +14,9 @@ defmodule BankAccount.Accounts.Client do
     field :gender, :string
     field :name, BankAccount.Encrypted.Binary
     field :name_hash, Cloak.Ecto.SHA256
-    field :referral_code, :string
     field :state, :string
     field :status_complete, :boolean, default: false
-    field :refered, :id
+    field :refered_id, :id
 
     has_one :credential, BankAccount.Accounts.Credential
 
@@ -36,15 +35,13 @@ defmodule BankAccount.Accounts.Client do
       :state,
       :country,
       :status_complete,
-      :refered,
-      :referral_code,
-      :active
+      :active,
+      :refered_id
     ])
     |> validate_required([
       :cpf
     ])
     |> unique_constraint(:cpf)
-    |> unique_constraint(:referral_code)
     |> put_hashed_fields()
   end
 

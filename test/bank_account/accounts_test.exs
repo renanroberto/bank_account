@@ -14,7 +14,6 @@ defmodule BankAccount.AccountsTest do
       cpf: "some cpf",
       gender: "some gender",
       name: "some name",
-      referral_code: "some referral_code",
       state: "some state",
       status_complete: true,
       credential: %{
@@ -30,7 +29,6 @@ defmodule BankAccount.AccountsTest do
       cpf: "some updated cpf",
       gender: "some updated gender",
       name: "some updated name",
-      referral_code: "some updated referral_code",
       state: "some updated state",
       status_complete: false
     }
@@ -42,7 +40,6 @@ defmodule BankAccount.AccountsTest do
       cpf: nil,
       gender: nil,
       name: nil,
-      referral_code: nil,
       state: nil,
       status_complete: nil
     }
@@ -66,7 +63,6 @@ defmodule BankAccount.AccountsTest do
       assert client.cpf == repo_client.cpf
       assert client.gender == repo_client.gender
       assert client.name == repo_client.name
-      assert client.referral_code == repo_client.referral_code
       assert client.state == repo_client.state
       assert client.credential.email == repo_client.credential.email
       assert client.credential.password == repo_client.credential.password
@@ -83,7 +79,6 @@ defmodule BankAccount.AccountsTest do
       assert client.cpf == repo_client.cpf
       assert client.gender == repo_client.gender
       assert client.name == repo_client.name
-      assert client.referral_code == repo_client.referral_code
       assert client.state == repo_client.state
       assert client.credential.email == repo_client.credential.email
       assert client.credential.password == repo_client.credential.password
@@ -99,7 +94,6 @@ defmodule BankAccount.AccountsTest do
       assert client.cpf == "some cpf"
       assert client.gender == "some gender"
       assert client.name == "some name"
-      assert client.referral_code == "some referral_code"
       assert client.state == "some state"
       assert client.credential.email == "email@example.com"
       assert Argon2.check_pass(client.credential, "secret", hash_key: :password)
@@ -120,7 +114,6 @@ defmodule BankAccount.AccountsTest do
       assert client.cpf == "some updated cpf"
       assert client.gender == "some updated gender"
       assert client.name == "some updated name"
-      assert client.referral_code == "some updated referral_code"
       assert client.state == "some updated state"
       assert client.status_complete == false
     end
@@ -137,7 +130,6 @@ defmodule BankAccount.AccountsTest do
       assert client.cpf == repo_client.cpf
       assert client.gender == repo_client.gender
       assert client.name == repo_client.name
-      assert client.referral_code == repo_client.referral_code
       assert client.state == repo_client.state
       assert client.credential.email == repo_client.credential.email
       assert client.credential.password == repo_client.credential.password

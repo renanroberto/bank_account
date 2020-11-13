@@ -137,7 +137,7 @@ defmodule BankAccount.Accounts do
       not is_nil(client.city),
       not is_nil(client.state),
       not is_nil(client.country),
-      not is_nil(client.refered)
+      not is_nil(client.refered_id)
     ]
 
     if Enum.all?(validations), do: :complete, else: :pending
