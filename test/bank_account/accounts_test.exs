@@ -159,9 +159,9 @@ defmodule BankAccount.AccountsTest do
   describe "credentials" do
     alias BankAccount.Accounts.Credential
 
-    @valid_attrs %{email: "some email", password: "some password"}
-    @update_attrs %{email: "some updated email", password: "some updated password"}
-    @invalid_attrs %{email: nil, password: nil}
+    @valid_attrs %{email: "email@example.com", password: "some password"}
+    @update_attrs %{email: "updated_email@example.com", password: "some updated password"}
+    @invalid_attrs %{email: "not an email", password: nil}
 
     def credential_fixture(attrs \\ %{}) do
       {:ok, credential} =
@@ -190,7 +190,7 @@ defmodule BankAccount.AccountsTest do
 
     test "create_credential/1 with valid data creates a credential" do
       assert {:ok, %Credential{} = credential} = Accounts.create_credential(@valid_attrs)
-      assert credential.email == "some email"
+      assert credential.email == "email@example.com"
 
       assert {:ok, credential} ==
                Argon2.check_pass(credential, "some password", hash_key: :password)
@@ -206,7 +206,7 @@ defmodule BankAccount.AccountsTest do
       assert {:ok, %Credential{} = credential} =
                Accounts.update_credential(credential, @update_attrs)
 
-      assert credential.email == "some updated email"
+      assert credential.email == "updated_email@example.com"
 
       assert {:ok, credential} ==
                Argon2.check_pass(credential, "some updated password", hash_key: :password)

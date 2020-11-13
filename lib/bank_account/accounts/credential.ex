@@ -20,6 +20,7 @@ defmodule BankAccount.Accounts.Credential do
     |> cast(attrs, [:email, :password])
     |> validate_required([:email, :password])
     |> unique_constraint(:email)
+    |> validate_format(:email, ~r/@/)
     |> put_password_hash()
     |> put_hashed_fields()
   end
