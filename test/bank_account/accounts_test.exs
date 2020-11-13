@@ -142,8 +142,7 @@ defmodule BankAccount.AccountsTest do
     test "verified client" do
       admin_attrs = %{
         name: "Admin",
-        cpf: "00000",
-        credential: %{email: "admin@admin.com", password: "admin"}
+        cpf: "00000"
       }
 
       assert {:ok, %Client{} = admin} = Accounts.create_client(admin_attrs)

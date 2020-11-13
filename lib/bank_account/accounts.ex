@@ -250,7 +250,7 @@ defmodule BankAccount.Accounts do
   defp check_status(%Client{} = client) do
     validations = [
       not is_nil(client.name),
-      not is_nil(client.credential.email),
+      not is_nil(client |> Map.get(:credential, %{}) |> Map.get(:email)),
       not is_nil(client.cpf),
       not is_nil(client.birth_date),
       not is_nil(client.gender),
