@@ -34,6 +34,7 @@ defmodule BankAccount.MixProject do
   defp deps do
     [
       {:credo, "~> 1.5", only: [:dev, :test], runtime: false},
+      {:cpf, "~> 1.1.0"},
       {:guardian, "~> 2.1.1"},
       {:argon2_elixir, "~> 2.3.0"},
       {:cloak_ecto, "~> 1.1.1"},
