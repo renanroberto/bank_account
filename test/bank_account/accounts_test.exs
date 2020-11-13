@@ -11,7 +11,7 @@ defmodule BankAccount.AccountsTest do
       birth_date: ~D[2010-04-17],
       city: "some city",
       country: "some country",
-      cpf: "some cpf",
+      cpf: CPF.generate() |> to_string(),
       gender: "some gender",
       name: "some name",
       state: "some state",
@@ -25,7 +25,7 @@ defmodule BankAccount.AccountsTest do
       birth_date: ~D[2011-05-18],
       city: "some updated city",
       country: "some updated country",
-      cpf: "some updated cpf",
+      cpf: CPF.generate() |> to_string(),
       gender: "some updated gender",
       name: "some updated name",
       state: "some updated state"
@@ -35,7 +35,7 @@ defmodule BankAccount.AccountsTest do
       birth_date: nil,
       city: nil,
       country: nil,
-      cpf: nil,
+      cpf: "invalid cpf",
       gender: nil,
       name: nil,
       state: nil
@@ -86,7 +86,7 @@ defmodule BankAccount.AccountsTest do
       assert client.birth_date == ~D[2010-04-17]
       assert client.city == "some city"
       assert client.country == "some country"
-      assert client.cpf == "some cpf"
+      assert CPF.valid?(client.cpf)
       assert client.gender == "some gender"
       assert client.name == "some name"
       assert client.state == "some state"
@@ -105,7 +105,7 @@ defmodule BankAccount.AccountsTest do
       assert client.birth_date == ~D[2011-05-18]
       assert client.city == "some updated city"
       assert client.country == "some updated country"
-      assert client.cpf == "some updated cpf"
+      assert CPF.valid?(client.cpf)
       assert client.gender == "some updated gender"
       assert client.name == "some updated name"
       assert client.state == "some updated state"
@@ -142,7 +142,7 @@ defmodule BankAccount.AccountsTest do
     test "verified client" do
       admin_attrs = %{
         name: "Admin",
-        cpf: "00000"
+        cpf: CPF.generate() |> to_string()
       }
 
       assert {:ok, %Client{} = admin} = Accounts.create_client(admin_attrs)

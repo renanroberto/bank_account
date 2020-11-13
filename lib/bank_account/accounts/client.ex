@@ -41,9 +41,32 @@ defmodule BankAccount.Accounts.Client do
     |> validate_required([
       :cpf
     ])
+    |> validate_change(:cpf, &validate_cpf/2)
+    |> format_cpf()
     |> unique_constraint(:cpf)
     |> put_hashed_fields()
   end
+
+  defp validate_cpf(:cpf, cpf) do
+    if CPF.valid?(cpf) do
+      []
+    else
+      [cpf: "is invalid"]
+    end
+  end
+
+  defp format_cpf(%Ecto.Changeset{valid?: true} = changeset) do
+    cpf =
+      changeset
+      |> get_field(:cpf)
+      |> CPF.parse!()
+      |> to_string()
+
+    changeset
+    |> put_change(:cpf, cpf)
+  end
+
+  defp format_cpf(changeset), do: changeset
 
   defp put_hashed_fields(changeset) do
     changeset
