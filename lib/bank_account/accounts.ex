@@ -64,8 +64,15 @@ defmodule BankAccount.Accounts do
              :credential,
              with: &Credential.changeset/2
            )
-           |> Repo.insert(),
-         do: {:ok, Repo.preload(client, :credential)}
+           |> Repo.insert() do
+      case check_status(client) do
+        :pending ->
+          {:ok, Repo.preload(client, :credential)}
+
+        :complete ->
+          verify_client(client)
+      end
+    end
   end
 
   @doc """
@@ -81,10 +88,59 @@ defmodule BankAccount.Accounts do
 
   """
   def update_client(%Client{} = client, attrs) do
-    client
-    |> Client.changeset(attrs)
-    |> Ecto.Changeset.cast_assoc(:credential, with: &Credential.changeset/2)
-    |> Repo.update()
+    with {:ok, updated_client} <-
+           client
+           |> Client.changeset(attrs)
+           |> Ecto.Changeset.cast_assoc(
+             :credential,
+             with: &Credential.changeset/2
+           )
+           |> Repo.update() do
+      case check_status(updated_client) do
+        :pending ->
+          {:ok, Repo.preload(updated_client, :credential)}
+
+        :complete ->
+          verify_client(updated_client)
+      end
+    end
+  end
+
+  defp verify_client(%Client{} = client) do
+    # TODO generate code properly
+    code = "12345678"
+
+    attrs = %{
+      status_complete: true,
+      referral_code: code
+    }
+
+    with {:ok, verified_client} <-
+           client
+           |> Client.changeset(attrs)
+           |> Ecto.Changeset.cast_assoc(
+             :credential,
+             with: &Credential.changeset/2
+           )
+           |> Repo.update() do
+      {:ok, Repo.preload(verified_client, :credential)}
+    end
+  end
+
+  defp check_status(%Client{} = client) do
+    validations = [
+      not is_nil(client.name),
+      not is_nil(client.credential.email),
+      not is_nil(client.cpf),
+      not is_nil(client.birth_date),
+      not is_nil(client.gender),
+      not is_nil(client.city),
+      not is_nil(client.state),
+      not is_nil(client.country),
+      not is_nil(client.refered)
+    ]
+
+    if Enum.all?(validations), do: :complete, else: :pending
   end
 
   @doc """

@@ -5,7 +5,7 @@ defmodule BankAccount.Accounts.Client do
   import Ecto.Changeset
 
   schema "clients" do
-    field :active, :boolean, default: false
+    field :active, :boolean, default: true
     field :birth_date, BankAccount.Encrypted.Date
     field :city, :string
     field :country, :string
@@ -36,6 +36,7 @@ defmodule BankAccount.Accounts.Client do
       :state,
       :country,
       :status_complete,
+      :refered,
       :referral_code,
       :active
     ])
@@ -44,7 +45,7 @@ defmodule BankAccount.Accounts.Client do
     ])
     |> unique_constraint(:cpf)
     |> unique_constraint(:referral_code)
-    |> put_hashed_fields
+    |> put_hashed_fields()
   end
 
   defp put_hashed_fields(changeset) do
