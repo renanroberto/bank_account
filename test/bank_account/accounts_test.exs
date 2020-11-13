@@ -15,7 +15,6 @@ defmodule BankAccount.AccountsTest do
       gender: "some gender",
       name: "some name",
       state: "some state",
-      status_complete: true,
       credential: %{
         email: "email@example.com",
         password: "secret"
@@ -29,8 +28,7 @@ defmodule BankAccount.AccountsTest do
       cpf: "some updated cpf",
       gender: "some updated gender",
       name: "some updated name",
-      state: "some updated state",
-      status_complete: false
+      state: "some updated state"
     }
     @invalid_attrs %{
       active: nil,
@@ -40,8 +38,7 @@ defmodule BankAccount.AccountsTest do
       cpf: nil,
       gender: nil,
       name: nil,
-      state: nil,
-      status_complete: nil
+      state: nil
     }
 
     def client_fixture(attrs \\ %{}) do
@@ -66,7 +63,6 @@ defmodule BankAccount.AccountsTest do
       assert client.state == repo_client.state
       assert client.credential.email == repo_client.credential.email
       assert client.credential.password == repo_client.credential.password
-      assert client.status_complete == repo_client.status_complete
     end
 
     test "get_client!/1 returns the client with given id" do
@@ -82,7 +78,6 @@ defmodule BankAccount.AccountsTest do
       assert client.state == repo_client.state
       assert client.credential.email == repo_client.credential.email
       assert client.credential.password == repo_client.credential.password
-      assert client.status_complete == repo_client.status_complete
     end
 
     test "create_client/1 with valid data creates a client" do
@@ -97,7 +92,6 @@ defmodule BankAccount.AccountsTest do
       assert client.state == "some state"
       assert client.credential.email == "email@example.com"
       assert Argon2.check_pass(client.credential, "secret", hash_key: :password)
-      assert client.status_complete == true
     end
 
     test "create_client/1 with invalid data returns error changeset" do
@@ -115,7 +109,6 @@ defmodule BankAccount.AccountsTest do
       assert client.gender == "some updated gender"
       assert client.name == "some updated name"
       assert client.state == "some updated state"
-      assert client.status_complete == false
     end
 
     test "update_client/2 with invalid data returns error changeset" do
@@ -133,7 +126,6 @@ defmodule BankAccount.AccountsTest do
       assert client.state == repo_client.state
       assert client.credential.email == repo_client.credential.email
       assert client.credential.password == repo_client.credential.password
-      assert client.status_complete == repo_client.status_complete
     end
 
     test "delete_client/1 deletes the client" do
@@ -145,6 +137,36 @@ defmodule BankAccount.AccountsTest do
     test "change_client/1 returns a client changeset" do
       client = client_fixture()
       assert %Ecto.Changeset{} = Accounts.change_client(client)
+    end
+
+    test "verified client" do
+      admin_attrs = %{
+        name: "Admin",
+        cpf: "00000",
+        credential: %{email: "admin@admin.com", password: "admin"}
+      }
+
+      assert {:ok, %Client{} = admin} = Accounts.create_client(admin_attrs)
+
+      client = client_fixture()
+
+      assert {:ok, code} = Accounts.gen_code(admin)
+      assert String.valid?(code)
+      assert {:ok, referral} = Accounts.get_referral(code)
+      assert {:ok, client} = Accounts.update_client(client, %{refered_id: referral.id})
+      assert client.status_complete == true
+      assert {:ok, _code} = Accounts.get_code(client)
+    end
+
+    test "get_referral/1 with wrong code" do
+      assert {:error, :referral_not_found} = Accounts.get_referral("123")
+    end
+
+    test "get_code/1 with pending status client" do
+      client = client_fixture()
+
+      assert client.status_complete == false
+      assert {:error, :code_not_found} = Accounts.get_code(client)
     end
   end
 

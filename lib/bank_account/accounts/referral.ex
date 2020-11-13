@@ -1,4 +1,4 @@
-defmodule BankAccount.Referral do
+defmodule BankAccount.Accounts.Referral do
   use Ecto.Schema
   import Ecto.Changeset
 

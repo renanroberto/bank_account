@@ -8,6 +8,7 @@ defmodule BankAccount.Accounts do
 
   alias BankAccount.Accounts.Client
   alias BankAccount.Accounts.Credential
+  alias BankAccount.Accounts.Referral
 
   @doc """
   Returns the list of clients.
@@ -104,43 +105,6 @@ defmodule BankAccount.Accounts do
           verify_client(updated_client)
       end
     end
-  end
-
-  defp verify_client(%Client{} = client) do
-    # TODO generate code properly
-    code = "12345678"
-
-    attrs = %{
-      status_complete: true,
-      referral_code: code
-    }
-
-    with {:ok, verified_client} <-
-           client
-           |> Client.changeset(attrs)
-           |> Ecto.Changeset.cast_assoc(
-             :credential,
-             with: &Credential.changeset/2
-           )
-           |> Repo.update() do
-      {:ok, Repo.preload(verified_client, :credential)}
-    end
-  end
-
-  defp check_status(%Client{} = client) do
-    validations = [
-      not is_nil(client.name),
-      not is_nil(client.credential.email),
-      not is_nil(client.cpf),
-      not is_nil(client.birth_date),
-      not is_nil(client.gender),
-      not is_nil(client.city),
-      not is_nil(client.state),
-      not is_nil(client.country),
-      not is_nil(client.refered_id)
-    ]
-
-    if Enum.all?(validations), do: :complete, else: :pending
   end
 
   @doc """
@@ -281,5 +245,110 @@ defmodule BankAccount.Accounts do
   """
   def change_credential(%Credential{} = credential, attrs \\ %{}) do
     Credential.changeset(credential, attrs)
+  end
+
+  defp check_status(%Client{} = client) do
+    validations = [
+      not is_nil(client.name),
+      not is_nil(client.credential.email),
+      not is_nil(client.cpf),
+      not is_nil(client.birth_date),
+      not is_nil(client.gender),
+      not is_nil(client.city),
+      not is_nil(client.state),
+      not is_nil(client.country),
+      not is_nil(client.refered_id)
+    ]
+
+    if Enum.all?(validations), do: :complete, else: :pending
+  end
+
+  defp verify_client(%Client{} = client) do
+    attrs = %{
+      status_complete: true
+    }
+
+    with {:ok, verified_client} <-
+           client
+           |> Client.changeset(attrs)
+           |> Ecto.Changeset.cast_assoc(
+             :credential,
+             with: &Credential.changeset/2
+           )
+           |> Repo.update(),
+         {:ok, _code} <- gen_code(verified_client) do
+      {:ok, Repo.preload(verified_client, :credential)}
+    end
+  end
+
+  def gen_code(%Client{} = client) do
+    limit = 100_000_000
+
+    case full?(limit) do
+      {:ok, :codes_available} ->
+        code = :rand.uniform(limit) - 1
+
+        query =
+          from r in Referral,
+            where: r.code == ^code
+
+        if Repo.exists?(query) do
+          gen_code(client)
+        else
+          with {:ok, referral} <- insert_referral(client, code),
+               do: {:ok, num_to_code(referral.code)}
+        end
+
+      error ->
+        error
+    end
+  end
+
+  def get_referral(code) do
+    {code, _} = Integer.parse(code)
+
+    query =
+      from r in Referral,
+        where: r.code == ^code
+
+    if referral = Repo.one(query) do
+      {:ok, referral}
+    else
+      {:error, :referral_not_found}
+    end
+  end
+
+  def get_code(%Client{} = client) do
+    query =
+      from r in Referral,
+        where: r.client_id == ^client.id
+
+    if referral = Repo.one(query) do
+      {:ok, num_to_code(referral.code)}
+    else
+      {:error, :code_not_found}
+    end
+  end
+
+  defp num_to_code(num) do
+    num
+    |> Integer.to_string()
+    |> String.pad_leading(8, "0")
+  end
+
+  defp insert_referral(client, code) do
+    %Referral{}
+    |> Referral.changeset(%{code: code, client_id: client.id})
+    |> Repo.insert()
+  end
+
+  defp full?(limit) do
+    query = from r in Referral, select: count()
+
+    if Repo.one(query) < limit do
+      {:ok, :codes_available}
+    else
+      {:error, :codes_sold_out}
+    end
   end
 end
