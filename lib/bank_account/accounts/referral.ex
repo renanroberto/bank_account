@@ -1,4 +1,6 @@
 defmodule BankAccount.Accounts.Referral do
+  @moduledoc "Provide the referral schema"
+
   use Ecto.Schema
   import Ecto.Changeset
 
