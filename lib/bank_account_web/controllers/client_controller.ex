@@ -62,19 +62,30 @@ defmodule BankAccountWeb.ClientController do
   end
 
   defp update(conn, client, params) do
-    case Accounts.update_client(client, params) do
-      {:ok, updated_client} ->
-        if client.status_complete != updated_client.status_complete do
-          render(conn, "complete_client.json", data: updated_client)
-        else
-          render(conn, "client.json", data: updated_client)
+    logged_client = Guardian.Plug.current_resource(conn)
+
+    cond do
+      is_nil(logged_client) ->
+        ErrorResponse.unauthorized(conn)
+
+      logged_client.id != client.id ->
+        ErrorResponse.bad_request(conn, "invalid CPF")
+
+      true ->
+        case Accounts.update_client(client, params) do
+          {:ok, updated_client} ->
+            if client.status_complete != updated_client.status_complete do
+              render(conn, "complete_client.json", data: updated_client)
+            else
+              render(conn, "client.json", data: updated_client)
+            end
+
+          {:error, :client_not_found} ->
+            ErrorResponse.not_found(conn, "client")
+
+          {:error, changeset} ->
+            ErrorResponse.bad_request(conn, changeset)
         end
-
-      {:error, :client_not_found} ->
-        ErrorResponse.not_found(conn, "client")
-
-      {:error, changeset} ->
-        ErrorResponse.bad_request(conn, changeset)
     end
   end
 

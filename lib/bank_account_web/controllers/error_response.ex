@@ -29,6 +29,13 @@ defmodule BankAccountWeb.ErrorResponse do
     |> render("error.json", data: "#{entity} not found")
   end
 
+  def unauthorized(conn) do
+    conn
+    |> put_status(401)
+    |> put_view(ErrorView)
+    |> render("error.json", data: "authentication is required")
+  end
+
   def internal_error(conn) do
     conn
     |> put_status(500)

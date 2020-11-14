@@ -38,13 +38,19 @@ defmodule BankAccountWeb.ClientControllerTest do
     end
 
     test "update client", %{conn: conn, client: client} do
+      conn = BankAccount.Accounts.Guardian.Plug.sign_in(conn, client)
+      token = BankAccount.Accounts.Guardian.Plug.current_token(conn)
+
       params = %{
         name: "Client New Name",
         cpf: client.cpf,
         status_complete: true
       }
 
-      conn = post(conn, "/api/registry", params)
+      conn =
+        conn
+        |> put_req_header("authorization", "#{token}")
+        |> post("/api/registry", params)
 
       assert %{
                "status" => "pending",
@@ -70,21 +76,26 @@ defmodule BankAccountWeb.ClientControllerTest do
         code: code
       }
 
-      conn = post(conn, "/api/registry", params)
+      conn_create = post(conn, "/api/registry", params)
 
       assert %{
                "status" => "newly_completed",
                "message" => _,
                "code" => code,
                "client" => %{
-                 "id" => _,
+                 "id" => id,
                  "status_complete" => true
                }
-             } = json_response(conn, 201)
+             } = json_response(conn_create, 201)
 
       assert {:ok, %Accounts.Referral{}} = Accounts.get_referral(code)
 
-      conn = post(conn, "/api/registry", %{cpf: params.cpf})
+      client = %{id: id}
+      conn = BankAccount.Accounts.Guardian.Plug.sign_in(conn, client)
+
+      conn =
+        conn
+        |> post("/api/registry", %{cpf: params.cpf})
 
       assert %{"status" => "complete"} = json_response(conn, 200)
     end
@@ -102,14 +113,21 @@ defmodule BankAccountWeb.ClientControllerTest do
         country: "BR"
       }
 
-      conn = post(conn, "/api/registry", params)
+      conn_create = post(conn, "/api/registry", params)
 
       assert %{
                "status" => "pending",
-               "client" => %{"cpf" => cpf, "status_complete" => false}
-             } = json_response(conn, 201)
+               "client" => %{
+                 "id" => id,
+                 "cpf" => cpf,
+                 "status_complete" => false
+               }
+             } = json_response(conn_create, 201)
 
-      conn = post(conn, "/api/registry", %{cpf: cpf, code: code})
+      client = %{id: id}
+      conn = BankAccount.Accounts.Guardian.Plug.sign_in(conn, client)
+
+      conn_update = post(conn, "/api/registry", %{cpf: cpf, code: code})
 
       assert %{
                "status" => "newly_completed",
@@ -119,13 +137,13 @@ defmodule BankAccountWeb.ClientControllerTest do
                  "id" => _,
                  "status_complete" => true
                }
-             } = json_response(conn, 200)
+             } = json_response(conn_update, 200)
 
       assert {:ok, %Accounts.Referral{}} = Accounts.get_referral(code)
 
-      conn = post(conn, "/api/registry", %{cpf: params.cpf})
+      conn_update_2 = post(conn, "/api/registry", %{cpf: params.cpf})
 
-      assert %{"status" => "complete"} = json_response(conn, 200)
+      assert %{"status" => "complete"} = json_response(conn_update_2, 200)
     end
 
     test "fail to registry new client: missing CPF", %{conn: conn} do
