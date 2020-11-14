@@ -45,6 +45,19 @@ defmodule BankAccount.Accounts do
     |> Repo.preload(:credential)
   end
 
+  def get_client_by_cpf(cpf) do
+    cpf = cpf |> CPF.parse!() |> to_string
+    result = Repo.get_by(Client, cpf_hash: cpf)
+
+    case result do
+      nil ->
+        {:error, :client_not_found}
+
+      client ->
+        {:ok, client}
+    end
+  end
+
   @doc """
   Creates a client.
 

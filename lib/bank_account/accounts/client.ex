@@ -43,8 +43,9 @@ defmodule BankAccount.Accounts.Client do
     ])
     |> validate_change(:cpf, &validate_cpf/2)
     |> format_cpf()
-    |> unique_constraint(:cpf)
     |> put_hashed_fields()
+    |> unique_constraint(:cpf)
+    |> unique_constraint(:cpf_hash)
   end
 
   defp validate_cpf(:cpf, cpf) do
