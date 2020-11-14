@@ -110,9 +110,11 @@ defmodule BankAccount.Accounts do
              with: &Credential.changeset/2
            )
            |> Repo.update() do
+      updated_client = Repo.preload(updated_client, :credential)
+
       case check_status(updated_client) do
         :pending ->
-          {:ok, Repo.preload(updated_client, :credential)}
+          {:ok, updated_client}
 
         :complete ->
           verify_client(updated_client)
@@ -272,6 +274,9 @@ defmodule BankAccount.Accounts do
       not is_nil(client.country),
       not is_nil(client.refered_id)
     ]
+
+    IO.inspect(client)
+    IO.inspect(validations)
 
     if Enum.all?(validations), do: :complete, else: :pending
   end
