@@ -198,6 +198,19 @@ defmodule BankAccountWeb.ClientControllerTest do
       assert %{"status" => "error", "error" => "invalid CPF"} = json_response(conn, 400)
     end
 
+    test "fail to registry new client: email already used", %{conn: conn, client: client} do
+      params = %{
+        name: "Client Test",
+        cpf: CPF.generate() |> to_string(),
+        email: client.credential.email,
+        password: "secret"
+      }
+
+      conn = post(conn, "/api/registry", params)
+
+      assert %{"status" => "error", "error" => "email already in use"} = json_response(conn, 400)
+    end
+
     test "fail to registry new client: missing email", %{conn: conn} do
       params = %{
         name: "Client Test",

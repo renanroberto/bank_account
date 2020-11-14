@@ -31,6 +31,7 @@ defmodule BankAccountWeb.ClientController do
     credential = %{email: email, password: password}
 
     with true <- CPF.valid?(cpf),
+         {:error, :credential_not_found} <- Accounts.get_credential_by_email(email),
          {:ok, referral} <- get_referral(params["code"]) do
       params = Map.merge(params, referral)
 
@@ -44,6 +45,9 @@ defmodule BankAccountWeb.ClientController do
     else
       false ->
         ErrorResponse.bad_request(conn, "invalid CPF")
+
+      {:ok, _credential} ->
+        ErrorResponse.bad_request(conn, "email already in use")
 
       {:error, :referral_not_found} ->
         ErrorResponse.bad_request(conn, "invalid referral code")
