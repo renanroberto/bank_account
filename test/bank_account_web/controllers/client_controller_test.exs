@@ -173,7 +173,7 @@ defmodule BankAccountWeb.ClientControllerTest do
       assert String.valid?(code)
     end
 
-    test "fail to registry new client: missing CPF", %{conn: conn} do
+    test "fail to register new client: missing CPF", %{conn: conn} do
       params = %{
         name: "Client Test",
         email: "client@test.com",
@@ -185,7 +185,7 @@ defmodule BankAccountWeb.ClientControllerTest do
       assert %{"status" => "error", "error" => "CPF is required"} = json_response(conn, 400)
     end
 
-    test "fail to registry new client: invalid CPF", %{conn: conn} do
+    test "fail to register new client: invalid CPF", %{conn: conn} do
       params = %{
         name: "Client Test",
         cpf: "12345",
@@ -198,7 +198,7 @@ defmodule BankAccountWeb.ClientControllerTest do
       assert %{"status" => "error", "error" => "invalid CPF"} = json_response(conn, 400)
     end
 
-    test "fail to registry new client: email already used", %{conn: conn, client: client} do
+    test "fail to register new client: email already used", %{conn: conn, client: client} do
       params = %{
         name: "Client Test",
         cpf: CPF.generate() |> to_string(),
@@ -211,7 +211,7 @@ defmodule BankAccountWeb.ClientControllerTest do
       assert %{"status" => "error", "error" => "email already in use"} = json_response(conn, 400)
     end
 
-    test "fail to registry new client: missing email", %{conn: conn} do
+    test "fail to register new client: missing email", %{conn: conn} do
       params = %{
         name: "Client Test",
         cpf: CPF.generate() |> to_string(),
