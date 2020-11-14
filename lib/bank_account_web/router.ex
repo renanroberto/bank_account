@@ -30,6 +30,7 @@ defmodule BankAccountWeb.Router do
   scope "/api", BankAccountWeb do
     pipe_through [:api, :auth]
 
+    post "/registry", ClientController, :upsert
     post "/login", SessionController, :login
   end
 
