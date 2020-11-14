@@ -275,9 +275,6 @@ defmodule BankAccount.Accounts do
       not is_nil(client.refered_id)
     ]
 
-    IO.inspect(client)
-    IO.inspect(validations)
-
     if Enum.all?(validations), do: :complete, else: :pending
   end
 

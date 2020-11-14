@@ -3,37 +3,43 @@ defmodule BankAccountWeb.ClientController do
 
   alias BankAccount.Accounts
 
-  def upsert(conn, params) do
-    params =
-      Map.drop(params, [
-        "active",
-        "status_complete",
-        "credential",
-        "refered_id"
-      ])
+  def upsert(conn, %{"cpf" => cpf} = params) do
+    invalid_params = [
+      "active",
+      "status_complete",
+      "credential",
+      "refered_id"
+    ]
+
+    params = Map.drop(params, invalid_params)
 
     email = params["email"]
     password = params["password"]
     credential = %{email: email, password: password}
 
-    cpf = params["cpf"]
+    with true <- CPF.valid?(cpf),
+         {:ok, referral} <- get_referral(params["code"]),
+         params <- Map.put(params, "refered_id", Map.get(referral, :id)),
+         {:ok, client} <- Accounts.get_client_by_cpf(cpf) do
+      update(conn, client, params)
+    else
+      {:error, :client_not_found} ->
+        create(conn, Map.put(params, "credential", credential))
 
-    cond do
-      is_nil(cpf) ->
-        json(conn, %{error: "CPF is required"})
+      {:error, :referral_not_found} ->
+        json(conn, %{error: "invalid referral code"})
 
-      not CPF.valid?(cpf) ->
+      false ->
         json(conn, %{error: "invalid CPF"})
 
-      true ->
-        case Accounts.get_client_by_cpf(params["cpf"]) do
-          {:ok, client} ->
-            update(conn, client, params)
-
-          {:error, :client_not_found} ->
-            create(conn, Map.put(params, "credential", credential))
-        end
+      error ->
+        IO.inspect(error)
+        json(conn, %{error: "something went wrong"})
     end
+  end
+
+  def upsert(conn, _params) do
+    json(conn, %{error: "CPF is required"})
   end
 
   defp create(conn, params) do
@@ -41,7 +47,7 @@ defmodule BankAccountWeb.ClientController do
       {:ok, client} ->
         conn
         |> put_status(201)
-        |> json(%{id: client.id, name: client.name})
+        |> render("client.json", data: client)
 
       {:error, changeset} ->
         IO.inspect(changeset)
@@ -53,7 +59,7 @@ defmodule BankAccountWeb.ClientController do
     case Accounts.update_client(client, params) do
       {:ok, updated_client} ->
         conn
-        |> json(%{id: updated_client.id, name: updated_client.name})
+        |> render("client.json", data: updated_client)
 
       {:error, :client_not_found} ->
         json(conn, %{error: "client not found"})
@@ -63,4 +69,10 @@ defmodule BankAccountWeb.ClientController do
         json(conn, %{error: "something went wrong"})
     end
   end
+
+  defp get_referral(code) when is_binary(code) do
+    Accounts.get_referral(code)
+  end
+
+  defp get_referral(_code), do: {:ok, nil}
 end
