@@ -278,7 +278,7 @@ defmodule BankAccount.Accounts do
     if Enum.all?(validations), do: :complete, else: :pending
   end
 
-  defp verify_client(%Client{} = client) do
+  defp verify_client(%Client{status_complete: false} = client) do
     attrs = %{
       status_complete: true
     }
@@ -300,6 +300,8 @@ defmodule BankAccount.Accounts do
       {:ok, verified_client}
     end
   end
+
+  defp verify_client(client), do: {:ok, client}
 
   def gen_code(%Client{} = client) do
     limit = 100_000_000

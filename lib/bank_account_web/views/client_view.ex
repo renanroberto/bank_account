@@ -15,8 +15,10 @@ defmodule BankAccountWeb.ClientView do
       status_complete: client.status_complete
     }
 
+    status = if client.status_complete, do: "complete", else: "pending"
+
     %{
-      status: "pending",
+      status: status,
       client: client_json
     }
   end
@@ -36,7 +38,7 @@ defmodule BankAccountWeb.ClientView do
     }
 
     %{
-      status: "complete",
+      status: "newly_completed",
       message: "congratulations! You've completed your registration",
       code: client.code,
       client: client_json

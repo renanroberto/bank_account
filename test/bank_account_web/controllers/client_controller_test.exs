@@ -73,7 +73,7 @@ defmodule BankAccountWeb.ClientControllerTest do
       conn = post(conn, "/api/registry", params)
 
       assert %{
-               "status" => "complete",
+               "status" => "newly_completed",
                "message" => _,
                "code" => code,
                "client" => %{
@@ -83,6 +83,10 @@ defmodule BankAccountWeb.ClientControllerTest do
              } = json_response(conn, 201)
 
       assert {:ok, %Accounts.Referral{}} = Accounts.get_referral(code)
+
+      conn = post(conn, "/api/registry", %{cpf: params.cpf})
+
+      assert %{"status" => "complete"} = json_response(conn, 200)
     end
 
     test "verify updated client", %{conn: conn, code: code} do
@@ -108,7 +112,7 @@ defmodule BankAccountWeb.ClientControllerTest do
       conn = post(conn, "/api/registry", %{cpf: cpf, code: code})
 
       assert %{
-               "status" => "complete",
+               "status" => "newly_completed",
                "message" => _,
                "code" => code,
                "client" => %{
@@ -118,6 +122,10 @@ defmodule BankAccountWeb.ClientControllerTest do
              } = json_response(conn, 200)
 
       assert {:ok, %Accounts.Referral{}} = Accounts.get_referral(code)
+
+      conn = post(conn, "/api/registry", %{cpf: params.cpf})
+
+      assert %{"status" => "complete"} = json_response(conn, 200)
     end
 
     test "fail to registry new client: missing CPF", %{conn: conn} do
