@@ -50,7 +50,7 @@ defmodule BankAccountWeb.ClientControllerTest do
              } = json_response(conn, 200)
     end
 
-    test "verify client", %{conn: conn, code: code} do
+    test "verify new client", %{conn: conn, code: code} do
       params = %{
         name: "Client Test",
         cpf: CPF.generate() |> to_string(),
@@ -67,6 +67,28 @@ defmodule BankAccountWeb.ClientControllerTest do
       conn = post(conn, "/api/registry", params)
 
       assert %{"status_complete" => true} = json_response(conn, 201)
+    end
+
+    test "verify updated client", %{conn: conn, code: code} do
+      params = %{
+        name: "Client Test",
+        cpf: CPF.generate() |> to_string(),
+        email: "client@test.com",
+        password: "secret",
+        birth_date: "1998-01-14",
+        gender: "male",
+        city: "RJ",
+        state: "RJ",
+        country: "BR"
+      }
+
+      conn = post(conn, "/api/registry", params)
+
+      assert %{"cpf" => cpf, "status_complete" => false} = json_response(conn, 201)
+
+      conn = post(conn, "/api/registry", %{cpf: cpf, code: code})
+
+      assert %{"status_complete" => true} = json_response(conn, 200)
     end
 
     test "fail to registry new client: missing CPF", %{conn: conn} do
