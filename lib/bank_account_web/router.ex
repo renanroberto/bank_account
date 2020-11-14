@@ -13,16 +13,25 @@ defmodule BankAccountWeb.Router do
     plug :accepts, ["json"]
   end
 
+  pipeline :auth do
+    plug BankAccount.Accounts.Pipeline
+  end
+
+  pipeline :ensure_auth do
+    plug Guardian.Plug.EnsureAuthenticated
+  end
+
   scope "/", BankAccountWeb do
     pipe_through :browser
 
     get "/", PageController, :index
   end
 
-  # Other scopes may use custom stacks.
-  # scope "/api", BankAccountWeb do
-  #   pipe_through :api
-  # end
+  scope "/api", BankAccountWeb do
+    pipe_through [:api, :auth]
+
+    post "/login", SessionController, :login
+  end
 
   # Enables LiveDashboard only for development
   #

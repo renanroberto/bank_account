@@ -184,9 +184,9 @@ defmodule BankAccount.Accounts do
   end
 
   def authenticate_credential(email, plain_password) do
-    query = from c in Credential, where: c.email == ^email
+    result = Repo.get_by(Credential, email_hash: email)
 
-    case Repo.one(query) do
+    case result do
       nil ->
         Argon2.no_user_verify()
         {:error, :invalid_credentials}
