@@ -7,7 +7,6 @@ defmodule BankAccount.AccountsTest do
     alias BankAccount.Accounts.Client
 
     @valid_attrs %{
-      active: true,
       birth_date: ~D[2010-04-17],
       city: "some city",
       country: "some country",
@@ -21,7 +20,6 @@ defmodule BankAccount.AccountsTest do
       }
     }
     @update_attrs %{
-      active: false,
       birth_date: ~D[2011-05-18],
       city: "some updated city",
       country: "some updated country",
@@ -31,7 +29,6 @@ defmodule BankAccount.AccountsTest do
       state: "some updated state"
     }
     @invalid_attrs %{
-      active: nil,
       birth_date: nil,
       city: nil,
       country: nil,
@@ -101,7 +98,6 @@ defmodule BankAccount.AccountsTest do
     test "update_client/2 with valid data updates the client" do
       client = client_fixture()
       assert {:ok, %Client{} = client} = Accounts.update_client(client, @update_attrs)
-      assert client.active == false
       assert client.birth_date == ~D[2011-05-18]
       assert client.city == "some updated city"
       assert client.country == "some updated country"

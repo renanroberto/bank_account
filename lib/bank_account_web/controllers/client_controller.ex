@@ -6,8 +6,6 @@ defmodule BankAccountWeb.ClientController do
 
   def upsert(conn, %{"cpf" => cpf} = params) do
     invalid_params = [
-      "active",
-      "status_complete",
       "credential",
       "refered_id"
     ]

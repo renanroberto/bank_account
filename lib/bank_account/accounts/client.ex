@@ -34,6 +34,28 @@ defmodule BankAccount.Accounts.Client do
       :city,
       :state,
       :country,
+      :refered_id
+    ])
+    |> validate_required([
+      :cpf
+    ])
+    |> validate_change(:cpf, &validate_cpf/2)
+    |> format_cpf()
+    |> put_hashed_fields()
+    |> unique_constraint(:cpf)
+    |> unique_constraint(:cpf_hash)
+  end
+
+  def private_changeset(client, attrs) do
+    client
+    |> cast(attrs, [
+      :name,
+      :cpf,
+      :birth_date,
+      :gender,
+      :city,
+      :state,
+      :country,
       :status_complete,
       :active,
       :refered_id

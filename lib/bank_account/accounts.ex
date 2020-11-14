@@ -285,7 +285,7 @@ defmodule BankAccount.Accounts do
 
     with {:ok, verified_client} <-
            client
-           |> Client.changeset(attrs)
+           |> Client.private_changeset(attrs)
            |> Ecto.Changeset.cast_assoc(
              :credential,
              with: &Credential.changeset/2
