@@ -31,7 +31,10 @@ defmodule BankAccountWeb.ClientControllerTest do
 
       conn = post(conn, "/api/registry", params)
 
-      assert %{"id" => _, "cpf" => _} = json_response(conn, 201)
+      assert %{
+               "status" => "pending",
+               "client" => %{"id" => _, "cpf" => _}
+             } = json_response(conn, 201)
     end
 
     test "update client", %{conn: conn, client: client} do
@@ -44,9 +47,12 @@ defmodule BankAccountWeb.ClientControllerTest do
       conn = post(conn, "/api/registry", params)
 
       assert %{
-               "id" => _,
-               "name" => "Client New Name",
-               "status_complete" => false
+               "status" => "pending",
+               "client" => %{
+                 "id" => _,
+                 "name" => "Client New Name",
+                 "status_complete" => false
+               }
              } = json_response(conn, 200)
     end
 
@@ -66,7 +72,17 @@ defmodule BankAccountWeb.ClientControllerTest do
 
       conn = post(conn, "/api/registry", params)
 
-      assert %{"status_complete" => true} = json_response(conn, 201)
+      assert %{
+               "status" => "complete",
+               "message" => _,
+               "code" => code,
+               "client" => %{
+                 "id" => _,
+                 "status_complete" => true
+               }
+             } = json_response(conn, 201)
+
+      assert {:ok, %Accounts.Referral{}} = Accounts.get_referral(code)
     end
 
     test "verify updated client", %{conn: conn, code: code} do
@@ -84,11 +100,24 @@ defmodule BankAccountWeb.ClientControllerTest do
 
       conn = post(conn, "/api/registry", params)
 
-      assert %{"cpf" => cpf, "status_complete" => false} = json_response(conn, 201)
+      assert %{
+               "status" => "pending",
+               "client" => %{"cpf" => cpf, "status_complete" => false}
+             } = json_response(conn, 201)
 
       conn = post(conn, "/api/registry", %{cpf: cpf, code: code})
 
-      assert %{"status_complete" => true} = json_response(conn, 200)
+      assert %{
+               "status" => "complete",
+               "message" => _,
+               "code" => code,
+               "client" => %{
+                 "id" => _,
+                 "status_complete" => true
+               }
+             } = json_response(conn, 200)
+
+      assert {:ok, %Accounts.Referral{}} = Accounts.get_referral(code)
     end
 
     test "fail to registry new client: missing CPF", %{conn: conn} do

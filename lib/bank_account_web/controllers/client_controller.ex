@@ -46,9 +46,15 @@ defmodule BankAccountWeb.ClientController do
   defp create(conn, params) do
     case Accounts.create_client(params) do
       {:ok, client} ->
-        conn
-        |> put_status(201)
-        |> render("client.json", data: client)
+        if client.status_complete do
+          conn
+          |> put_status(201)
+          |> render("complete_client.json", data: client)
+        else
+          conn
+          |> put_status(201)
+          |> render("client.json", data: client)
+        end
 
       {:error, changeset} ->
         ErrorResponse.bad_request(conn, changeset)
@@ -58,8 +64,11 @@ defmodule BankAccountWeb.ClientController do
   defp update(conn, client, params) do
     case Accounts.update_client(client, params) do
       {:ok, updated_client} ->
-        conn
-        |> render("client.json", data: updated_client)
+        if client.status_complete != updated_client.status_complete do
+          render(conn, "complete_client.json", data: updated_client)
+        else
+          render(conn, "client.json", data: updated_client)
+        end
 
       {:error, :client_not_found} ->
         ErrorResponse.not_found(conn, "client")

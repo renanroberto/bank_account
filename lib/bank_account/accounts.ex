@@ -291,8 +291,13 @@ defmodule BankAccount.Accounts do
              with: &Credential.changeset/2
            )
            |> Repo.update(),
-         {:ok, _code} <- gen_code(verified_client) do
-      {:ok, Repo.preload(verified_client, :credential)}
+         {:ok, code} <- gen_code(verified_client) do
+      verified_client =
+        verified_client
+        |> Repo.preload(:credential)
+        |> Map.put(:code, code)
+
+      {:ok, verified_client}
     end
   end
 
