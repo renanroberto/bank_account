@@ -15,7 +15,9 @@ defmodule BankAccountWeb.ClientControllerTest do
 
     {:ok, created_client} = Accounts.create_client(client)
 
-    %{client: created_client}
+    {:ok, code} = Accounts.gen_code(created_client)
+
+    %{client: created_client, code: code}
   end
 
   describe "POST /api/registry" do
@@ -46,6 +48,25 @@ defmodule BankAccountWeb.ClientControllerTest do
                "name" => "Client New Name",
                "status_complete" => false
              } = json_response(conn, 200)
+    end
+
+    test "verify client", %{conn: conn, code: code} do
+      params = %{
+        name: "Client Test",
+        cpf: CPF.generate() |> to_string(),
+        email: "client@test.com",
+        password: "secret",
+        birth_date: "1998-01-14",
+        gender: "male",
+        city: "RJ",
+        state: "RJ",
+        country: "BR",
+        code: code
+      }
+
+      conn = post(conn, "/api/registry", params)
+
+      assert %{"status_complete" => true} = json_response(conn, 201)
     end
 
     test "fail to registry new client: missing CPF", %{conn: conn} do

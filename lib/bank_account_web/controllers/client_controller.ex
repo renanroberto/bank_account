@@ -17,23 +17,22 @@ defmodule BankAccountWeb.ClientController do
     credential = %{email: email, password: password}
 
     with true <- CPF.valid?(cpf),
-         {:ok, referral} <- get_referral(params["code"]),
-         {:ok, client} <- Accounts.get_client_by_cpf(cpf) do
-      if not is_nil(referral) do
-        params = Map.put(params, "refered_id", referral.id)
-        update(conn, client, params)
-      else
-        update(conn, client, params)
+         {:ok, referral} <- get_referral(params["code"]) do
+      params = Map.merge(params, referral)
+
+      case Accounts.get_client_by_cpf(cpf) do
+        {:ok, client} ->
+          update(conn, client, params)
+
+        {:error, :client_not_found} ->
+          create(conn, Map.put(params, "credential", credential))
       end
     else
-      {:error, :client_not_found} ->
-        create(conn, Map.put(params, "credential", credential))
+      false ->
+        ErrorResponse.bad_request(conn, "invalid CPF")
 
       {:error, :referral_not_found} ->
         ErrorResponse.bad_request(conn, "invalid referral code")
-
-      false ->
-        ErrorResponse.bad_request(conn, "invalid CPF")
 
       _ ->
         ErrorResponse.internal_error(conn)
@@ -71,8 +70,10 @@ defmodule BankAccountWeb.ClientController do
   end
 
   defp get_referral(code) when is_binary(code) do
-    Accounts.get_referral(code)
+    with {:ok, referral} <- Accounts.get_referral(code) do
+      {:ok, %{"refered_id" => referral.id}}
+    end
   end
 
-  defp get_referral(_code), do: {:ok, nil}
+  defp get_referral(_code), do: {:ok, %{}}
 end
