@@ -4,6 +4,20 @@ defmodule BankAccountWeb.ClientController do
   alias BankAccount.Accounts
   alias BankAccountWeb.ErrorResponse
 
+  def get_me(conn, _params) do
+    logged_client = Guardian.Plug.current_resource(conn)
+
+    code =
+      case Accounts.get_code(logged_client) do
+        {:ok, maybe_code} -> maybe_code
+        _ -> nil
+      end
+
+    logged_client = Map.put(logged_client, :code, code)
+
+    render(conn, "client_with_code.json", data: logged_client)
+  end
+
   def upsert(conn, %{"cpf" => cpf} = params) do
     invalid_params = [
       "credential",

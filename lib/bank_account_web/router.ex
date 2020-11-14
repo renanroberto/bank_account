@@ -34,6 +34,12 @@ defmodule BankAccountWeb.Router do
     post "/login", SessionController, :login
   end
 
+  scope "/api", BankAccountWeb do
+    pipe_through [:api, :auth, :ensure_auth]
+
+    get "/me", ClientController, :get_me
+  end
+
   # Enables LiveDashboard only for development
   #
   # If you want to use the LiveDashboard in production, you should put
