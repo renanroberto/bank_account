@@ -23,6 +23,14 @@ config :bank_account, BankAccount.Accounts.Guardian,
   issuer: "bank_account",
   secret_key: "W+JZVZBh94gbA1DUULG8f/AscBJILCGIfwHj+sqF1lfyfPRQgcGMFiqypGSfVTR6"
 
+# Configures Cloak Ecto
+config :bank_account, BankAccount.Vault,
+  ciphers: [
+    default:
+      {Cloak.Ciphers.AES.GCM,
+       tag: "AES.GCM.V1", key: Base.decode64!("MPF+6wgvvyQZ3DQIp9BnsLIsqLdTGfge0LEhq8B2KcM=")}
+  ]
+
 # Configures Elixir's Logger
 config :logger, :console,
   format: "$time $metadata[$level] $message\n",

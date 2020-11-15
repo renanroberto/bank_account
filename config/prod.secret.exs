@@ -41,6 +41,21 @@ config :bank_account, BankAccount.Accounts.Guardian,
   issuer: "bank_account",
   secret_key: secret_key_guardian
 
+secret_key_cloak =
+  System.get_env("SECRET_KEY_CLOAK") ||
+    raise """
+    environment variable SECRET_KEY_CLOAK is missing.
+    You can generate one on iex by calling:
+    32 |> :crypto.strong_rand_bytes() |> Base.encode64()
+    """
+
+config :bank_account, BankAccount.Vault,
+  ciphers: [
+    default:
+      {Cloak.Ciphers.AES.GCM,
+       tag: "AES.GCM.V1", key: Base.decode64!("MPF+6wgvvyQZ3DQIp9BnsLIsqLdTGfge0LEhq8B2KcM=")}
+  ]
+
 # ## Using releases (Elixir v1.9+)
 #
 # If you are doing OTP releases, you need to instruct Phoenix
