@@ -276,29 +276,29 @@ defmodule BankAccount.Accounts do
     Credential.changeset(credential, attrs)
   end
 
+  @required_fields [
+    :name,
+    :cpf,
+    :email,
+    :birth_date,
+    :gender,
+    :city,
+    :state,
+    :country,
+    :refered_id
+  ]
+
   defp check_status(%Client{} = client) do
     email = client |> Map.get(:credential, %{}) |> Map.get(:email)
     client = Map.put(client, :email, email)
 
-    required_fields = [
-      :name,
-      :cpf,
-      :email,
-      :birth_date,
-      :gender,
-      :city,
-      :state,
-      :country,
-      :refered_id
-    ]
-
-    missing_fields =
-      Enum.filter(
-        required_fields,
+    validated =
+      not Enum.any?(
+        @required_fields,
         &is_nil(Map.get(client, &1))
       )
 
-    if Enum.empty?(missing_fields), do: :complete, else: :pending
+    if validated, do: :complete, else: :pending
   end
 
   defp verify_client(%Client{status_complete: false} = client) do
