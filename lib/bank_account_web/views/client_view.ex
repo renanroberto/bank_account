@@ -1,6 +1,10 @@
 defmodule BankAccountWeb.ClientView do
   use BankAccountWeb, :view
 
+  def render("clients.json", %{data: clients}) do
+    render_many(clients, __MODULE__, "client.json", as: :data)
+  end
+
   def render("client.json", %{data: client}) do
     client_json = %{
       id: client.id,

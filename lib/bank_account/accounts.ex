@@ -340,6 +340,15 @@ defmodule BankAccount.Accounts do
     end
   end
 
+  def get_indicated(%Client{status_complete: true} = client) do
+    referral_query = from r in Referral, where: r.client_id == ^client.id
+    referral = Repo.one(referral_query)
+
+    clients_query = from c in Client, where: c.refered_id == ^referral.id
+
+    Repo.all(clients_query)
+  end
+
   def get_referral(code) do
     {code, _} = Integer.parse(code)
 

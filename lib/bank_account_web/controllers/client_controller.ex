@@ -18,6 +18,21 @@ defmodule BankAccountWeb.ClientController do
     render(conn, "client_with_code.json", data: logged_client)
   end
 
+  def get_indicated(conn, _params) do
+    logged_client = Guardian.Plug.current_resource(conn)
+
+    if logged_client.status_complete do
+      clients = Accounts.get_indicated(logged_client)
+
+      render(conn, "clients.json", data: clients)
+    else
+      ErrorResponse.unauthorized(
+        conn,
+        "feature reserved for members with complete registry"
+      )
+    end
+  end
+
   def upsert(conn, %{"cpf" => cpf} = params) do
     invalid_params = [
       "credential",

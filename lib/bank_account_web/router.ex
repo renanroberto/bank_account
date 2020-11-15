@@ -38,6 +38,7 @@ defmodule BankAccountWeb.Router do
     pipe_through [:api, :auth, :ensure_auth]
 
     get "/me", ClientController, :get_me
+    get "/indications", ClientController, :get_indicated
   end
 
   # Enables LiveDashboard only for development
