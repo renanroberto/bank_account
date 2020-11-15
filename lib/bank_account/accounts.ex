@@ -277,19 +277,28 @@ defmodule BankAccount.Accounts do
   end
 
   defp check_status(%Client{} = client) do
-    validations = [
-      not is_nil(client.name),
-      not is_nil(client |> Map.get(:credential, %{}) |> Map.get(:email)),
-      not is_nil(client.cpf),
-      not is_nil(client.birth_date),
-      not is_nil(client.gender),
-      not is_nil(client.city),
-      not is_nil(client.state),
-      not is_nil(client.country),
-      not is_nil(client.refered_id)
+    email = client |> Map.get(:credential, %{}) |> Map.get(:email)
+    client = Map.put(client, :email, email)
+
+    required_fields = [
+      :name,
+      :cpf,
+      :email,
+      :birth_date,
+      :gender,
+      :city,
+      :state,
+      :country,
+      :refered_id
     ]
 
-    if Enum.all?(validations), do: :complete, else: :pending
+    missing_fields =
+      Enum.filter(
+        required_fields,
+        &is_nil(Map.get(client, &1))
+      )
+
+    if Enum.empty?(missing_fields), do: :complete, else: :pending
   end
 
   defp verify_client(%Client{status_complete: false} = client) do

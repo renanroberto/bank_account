@@ -139,8 +139,8 @@ defmodule BankAccountWeb.ClientController do
 
   def create_admin(conn, _params) do
     random_password =
-      :rand.uniform(1_000_000)
-      |> to_string
+      32
+      |> :crypto.strong_rand_bytes()
       |> Base.encode64()
 
     params = %{
