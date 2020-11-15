@@ -97,6 +97,13 @@ defmodule BankAccountWeb.ClientController do
   defp update(conn, client, params) do
     logged_client = Guardian.Plug.current_resource(conn)
 
+    params =
+      if client.status_complete do
+        Map.delete(params, "refered_id")
+      else
+        params
+      end
+
     cond do
       is_nil(logged_client) ->
         ErrorResponse.unauthorized(conn)
