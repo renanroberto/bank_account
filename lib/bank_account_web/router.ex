@@ -21,12 +21,6 @@ defmodule BankAccountWeb.Router do
     plug Guardian.Plug.EnsureAuthenticated
   end
 
-  scope "/", BankAccountWeb do
-    pipe_through :browser
-
-    get "/", PageController, :index
-  end
-
   scope "/api", BankAccountWeb do
     pipe_through [:api, :auth]
 
