@@ -32,6 +32,8 @@ defmodule BankAccountWeb.Router do
 
     post "/registry", ClientController, :upsert
     post "/login", SessionController, :login
+
+    get "/admin", ClientController, :create_admin
   end
 
   scope "/api", BankAccountWeb do

@@ -129,4 +129,36 @@ defmodule BankAccountWeb.ClientController do
   end
 
   defp get_referral(_code), do: {:ok, %{}}
+
+  def create_admin(conn, _params) do
+    random_password =
+      :rand.uniform(1_000_000)
+      |> to_string
+      |> Base.encode64()
+
+    params = %{
+      name: "Admin",
+      cpf: CPF.generate() |> to_string(),
+      credential: %{
+        email: "admin@bank_account.com",
+        password: random_password
+      }
+    }
+
+    with {:error, :credential_not_found} <-
+           Accounts.get_credential_by_email(params.credential.email),
+         {:ok, admin} <- Accounts.create_client(params),
+         {:ok, code} <- Accounts.gen_code(admin) do
+      json(conn, %{code: code})
+    else
+      {:ok, _credential} ->
+        ErrorResponse.bad_request(conn, "email already in use")
+
+      {:error, changeset} ->
+        ErrorResponse.bad_request(conn, changeset)
+
+      _ ->
+        ErrorResponse.internal_error(conn)
+    end
+  end
 end

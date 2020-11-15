@@ -58,20 +58,6 @@ defmodule BankAccount.Accounts do
     end
   end
 
-  def get_credential_by_email(email) when is_binary(email) do
-    result = Repo.get_by(Credential, email_hash: email)
-
-    case result do
-      nil ->
-        {:error, :credential_not_found}
-
-      client ->
-        {:ok, client}
-    end
-  end
-
-  def get_credential_by_email(_), do: {:error, :credential_not_found}
-
   @doc """
   Creates a client.
 
@@ -193,6 +179,20 @@ defmodule BankAccount.Accounts do
 
   """
   def get_credential!(id), do: Repo.get!(Credential, id)
+
+  def get_credential_by_email(email) when is_binary(email) do
+    result = Repo.get_by(Credential, email_hash: email)
+
+    case result do
+      nil ->
+        {:error, :credential_not_found}
+
+      client ->
+        {:ok, client}
+    end
+  end
+
+  def get_credential_by_email(_), do: {:error, :credential_not_found}
 
   @doc """
   Creates a credential.
