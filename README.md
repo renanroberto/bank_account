@@ -5,7 +5,7 @@
 
 ## Installing and Running
 
-You will need to have installed [Elixir](https://elixir-lang.org/install.html), [Phoenix](https://hexdocs.pm/phoenix/installation.html) and [PostgreSQL](https://www.postgresql.org/download/). Then, follow this steps:
+You will need to have installed [Elixir](https://elixir-lang.org/install.html), [Phoenix](https://hexdocs.pm/phoenix/installation.html) and [PostgreSQL](https://www.postgresql.org/download/). Then, follow those steps:
 
 	$ git clone git@github.com:renanroberto/bank_account.git
 	$ cd bank_account
@@ -16,9 +16,9 @@ You will need to have installed [Elixir](https://elixir-lang.org/install.html), 
 Now the server should be running on port 4000
 
 
-## Running the tests
+## Running tests
 
-Considering you already cloned this repo
+Considering you already cloned this repo, run:
 
 	$ mix test
 
@@ -232,7 +232,9 @@ We have separated schemas, `Credential` and `Client`, that share the same contex
 
 To generate an 8 digit nonsequential referral code we first check if there is any code available. If so, then we get a random number between 0 and 99999999 and check if it was already generated. If that was the case, we try to generate it again and repeat this process until we get an available code.
 
-This system can generate a total of one hundred million unique codes.
+In the current state, this system can generate a total of one hundred million unique codes.
+
+This method should run fast enough as far as we do not get near to sold out the codes available. In case we reach somewhere near one hundred million clients, we should add one more digit to the code.
 
 
 ## Difficulties
@@ -244,4 +246,3 @@ Since `Ecto.Cloak` change some fields, I'm having trouble to guarantee the uniqu
 
 * Implement other methods of authentication, like login with Google.
 * Delete or deactivate accounts. Already exists methods for deletion on the `Accounts` context module and `Client` already has an `active` field for deactivation.
-* Generate referral code asynchronously. For a large number of codes, it can take an indeterminate amount of time to generate the code.
